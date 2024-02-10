@@ -87,6 +87,8 @@ button.when_pressed = button_presssed
 led = PWMLED(c.LEDGPIO)
 led.value=1
 
+print(led.pin_factory)
+
 serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial)
 
@@ -98,113 +100,119 @@ lrgfont = ImageFont.truetype('fonts/VCR_OSD_MONO_1.001.ttf',42)
 # Default mode, show large percentage
 mode=0
 
-while True:
+print("Enter main while loop. CTRL-C to quit.")
 
-  # Get Pi-Hole data
-  r1 = requests.get(c.APIsummaryURL+"&auth="+c.APItoken)
+try:
+  while True:
 
-  v_ads_percent=str(round(r1.json()["ads_percentage_today"]))
-  v_ads_blocked=str(r1.json()["ads_blocked_today"])
-  v_status=str(r1.json()["status"])
-  v_dns_queries=str(r1.json()["dns_queries_today"])
+    # Get Pi-Hole data
+    r1 = requests.get(c.APIsummaryURL+"&auth="+c.APItoken)
 
-  # UNCOMMENT TO USE TEST VALUES
-  #v_ads_percent="100"
-  #v_ads_blocked="999999"
-  #v_status="disabled"
-  #v_dns_queries="99999"
+    v_ads_percent=str(round(r1.json()["ads_percentage_today"]))
+    v_ads_blocked=str(r1.json()["ads_blocked_today"])
+    v_status=str(r1.json()["status"])
+    v_dns_queries=str(r1.json()["dns_queries_today"])
 
-  if v_status=="disabled":
-    #Pi-Hole is disabled
-    mode=5
-  elif mode==5:
-    #Pi-Hole is not disabled but was previously
-    mode=0
+    # UNCOMMENT TO USE TEST VALUES
+    #v_ads_percent="100"
+    #v_ads_blocked="999999"
+    #v_status="disabled"
+    #v_dns_queries="99999"
 
-  if mode==0:
-    #
-    # Large percentage with ads blocked today shown below
-    #
+    if v_status=="disabled":
+      #Pi-Hole is disabled
+      mode=5
+    elif mode==5:
+      #Pi-Hole is not disabled but was previously
+      mode=0
 
-    textLen=int(lrgfont.getlength(v_ads_percent+"%"))
-    offset1=round((128-textLen)/2)
-    textLen=int(medfont.getlength(v_ads_blocked))
-    offset2=round((128-textLen)/2)
+    if mode==0:
+      #
+      # Large percentage with ads blocked today shown below
+      #
 
-    # Scroll from right-hand side (x 128 to 0 in steps of 16)
-    for x in range(128,-1,-8):
+      textLen=int(lrgfont.getlength(v_ads_percent+"%"))
+      offset1=round((128-textLen)/2)
+      textLen=int(medfont.getlength(v_ads_blocked))
+      offset2=round((128-textLen)/2)
 
+      # Scroll from right-hand side (x 128 to 0 in steps of 16)
+      for x in range(128,-1,-8):
+
+        with canvas(device) as draw:
+          # Draw a black filled box to clear image.
+          draw.rectangle(device.bounding_box, outline="black", fill="black")
+          # Display large Pi-Hole ads blocked percentage
+          draw.text((x+offset1, 0), v_ads_percent+"%",  font=lrgfont, fill=255)
+          draw.text((x+offset2, 44), v_ads_blocked, font=medfont, fill=255)
+
+        time.sleep(0.04)
+
+      time.sleep(10)
+
+      mode=1
+
+    if mode==1:
+      #
+      # Get information about local system
+      #   IP Address, CPU usage, Memory usage and Disk usage
+      #
+
+      # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
+      cmd = "hostname -I | cut -d\' \' -f1"
+      IP = subprocess.check_output(cmd, shell = True )
+
+      # Write Pi-Hole data
       with canvas(device) as draw:
-        # Draw a black filled box to clear image.
-        draw.rectangle(device.bounding_box, outline="black", fill="black")
-        # Display large Pi-Hole ads blocked percentage
-        draw.text((x+offset1, 0), v_ads_percent+"%",  font=lrgfont, fill=255)
-        draw.text((x+offset2, 44), v_ads_blocked, font=medfont, fill=255)
+        draw.text((0, 0),  str(IP.decode('UTF-8')),   font=smlfont, fill=255)
+        draw.text((0, 16), "B: %s%%" % v_ads_percent, font=smlfont, fill=255)
+        draw.text((0, 32), "A: %s"   % v_ads_blocked, font=smlfont, fill=255)
+        draw.text((0, 48), "Q: %s"   % v_dns_queries, font=smlfont, fill=255)
 
-      time.sleep(0.04)
+      time.sleep(5)
+
+      mode=2
+
+    if mode==2:
+      #
+      # Get information about local system
+      #   IP Address, CPU usage, Memory usage and Disk usage
+      #
+
+      # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
+      cmd = "top -bn1 | grep load | awk '{printf \"C: %.2f\", $(NF-2)}'"
+      CPU = subprocess.check_output(cmd, shell = True )
+      cmd = "free -m | awk 'NR==2{printf \"M: %s/%sMB\", $3,$2 }'"
+      MemUsage = subprocess.check_output(cmd, shell = True )
+      cmd = "df -h | awk '$NF==\"/\"{printf \"D: %d/%dGB\", $3,$2}'"
+      Disk = subprocess.check_output(cmd, shell = True )
+
+      # Display system stats
+      with canvas(device) as draw:
+        draw.text((0, 0),  str(IP.decode('UTF-8')),       font=smlfont, fill=255)
+        draw.text((0, 16), str(CPU.decode('UTF-8')),      font=smlfont, fill=255)
+        draw.text((0, 32), str(MemUsage.decode('UTF-8')), font=smlfont, fill=255)
+        draw.text((0, 48), str(Disk.decode('UTF-8')),     font=smlfont, fill=255)
+
+      time.sleep(5)
+
+      mode=0
+
+    if mode==5:
+      #
+      # Pi-Hole is disabled
+      #
+
+      textLen=int(lrgfont.getlength("X"))
+      offset=round((128-textLen)/2)
+      with canvas(device) as draw:
+        draw.text((offset, 0), "X", font=lrgfont, fill=255)
+      time.sleep(10)
+
 
     time.sleep(10)
 
-    mode=1
+    # continue while loop
 
-  if mode==1:
-    #
-    # Get information about local system
-    #   IP Address, CPU usage, Memory usage and Disk usage
-    #
-
-    # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
-    cmd = "hostname -I | cut -d\' \' -f1"
-    IP = subprocess.check_output(cmd, shell = True )
-
-    # Write Pi-Hole data
-    with canvas(device) as draw:
-      draw.text((0, 0),  str(IP.decode('UTF-8')),   font=smlfont, fill=255)
-      draw.text((0, 16), "B: %s%%" % v_ads_percent, font=smlfont, fill=255)
-      draw.text((0, 32), "A: %s"   % v_ads_blocked, font=smlfont, fill=255)
-      draw.text((0, 48), "Q: %s"   % v_dns_queries, font=smlfont, fill=255)
-
-    time.sleep(5)
-
-    mode=2
-
-  if mode==2:
-    #
-    # Get information about local system
-    #   IP Address, CPU usage, Memory usage and Disk usage
-    #
-
-    # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
-    cmd = "top -bn1 | grep load | awk '{printf \"C: %.2f\", $(NF-2)}'"
-    CPU = subprocess.check_output(cmd, shell = True )
-    cmd = "free -m | awk 'NR==2{printf \"M: %s/%sMB\", $3,$2 }'"
-    MemUsage = subprocess.check_output(cmd, shell = True )
-    cmd = "df -h | awk '$NF==\"/\"{printf \"D: %d/%dGB\", $3,$2}'"
-    Disk = subprocess.check_output(cmd, shell = True )
-
-    # Display system stats
-    with canvas(device) as draw:
-      draw.text((0, 0),  str(IP.decode('UTF-8')),       font=smlfont, fill=255)
-      draw.text((0, 16), str(CPU.decode('UTF-8')),      font=smlfont, fill=255)
-      draw.text((0, 32), str(MemUsage.decode('UTF-8')), font=smlfont, fill=255)
-      draw.text((0, 48), str(Disk.decode('UTF-8')),     font=smlfont, fill=255)
-
-    time.sleep(5)
-
-    mode=0
-
-  if mode==5:
-    #
-    # Pi-Hole is disabled
-    #
-
-    textLen=int(lrgfont.getlength("X"))
-    offset=round((128-textLen)/2)
-    with canvas(device) as draw:
-      draw.text((offset, 0), "X", font=lrgfont, fill=255)
-    time.sleep(10)
-
-
-  time.sleep(10)
-
-  # continue while loop
+except KeyboardInterrupt:
+  print("Aborted by user")
