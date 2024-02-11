@@ -13,13 +13,21 @@ This is a work in progress. The script is working but I need to update my blog p
 # Initial Setup
 ## Download project files
 Use SSH to gain access to the Pi-Hole command line,
-```cd ~```
+```
+cd ~
+```
 Clone the project repository:
-```git clone https://github.com/RPiSpy/pi-hole-screen.git```
+```
+git clone https://github.com/RPiSpy/pi-hole-screen.git
+```
 Enter the new project folder:
-```cd pi-hole-screen```
+```
+cd pi-hole-screen
+```
 Rename the config-template.py file to config.py:
-```mv config-template.py config.py```
+```
+mv config-template.py config.py
+```
 Edit config.py and add your Pi-Hole API token:
 ```nano config.py```
 Use CTRL-X, Y and ENTER to save and quit.
