@@ -1,5 +1,5 @@
 # pi-hole-screen
-A repository for my 128x64 OLED screen add-on for a Raspberry Pi based Pi-Hole systems.
+A repository for my 128x64 OLED screen add-on for Raspberry Pi based Pi-Hole systems.
 
 # Current Status
 This is a work in progress. The script is working but I need to update my blog post to explain how to implement it.
