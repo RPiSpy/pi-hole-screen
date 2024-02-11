@@ -42,7 +42,7 @@ python3 -m venv venv
 ```
 then activate it:
 ```
-python venv/bin/activate
+source venv/bin/activate
 ```
 Then finally install the libraries required by the script:
 ```
