@@ -81,4 +81,5 @@ The following fonts are used by the script to display data on the screen:
 - Big Shot by Portmanpreau - https://www.dafont.com/big-shot.font
 - Pixel 12x10 by Corne2Plum3 - https://www.dafont.com/pixel12x10.font
 - VCR OSD Mono by Riciery Leal - https://www.dafont.com/vcr-osd-mono.font
+
 They were chosen to best represent text at the required pixel sizes.
