@@ -4,11 +4,15 @@ A repository for my 128x64 OLED screen add-on for Raspberry Pi based Pi-Hole sys
 # Current Status
 This is a work in progress. The script is working but I need to update my blog post to explain how to implement it.
 
-# Hardware Requirements
+# Requirements
 - A Raspberry Pi running Pi-Hole
 - A 128x64 I2C OLED Screen
 - (optional)LED with current limiting resistor connected to GPIO24
 - (optional)Momentary switch connected between GPIO21 and Ground
+
+Developed and tested on a Raspberry Pi 3B. Deployed to my Raspberry Pi B+ running Pi-Hole. Both build on Raspberry Pi OS Lite (32bit) "Bookworm".
+
+Installation of additional libraries may be required on older versions of Raspberry Pi OS.
 
 # Initial Setup
 ## Download project files

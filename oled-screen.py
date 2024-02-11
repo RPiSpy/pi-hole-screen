@@ -87,8 +87,6 @@ button.when_pressed = button_presssed
 led = PWMLED(c.LEDGPIO)
 led.value=1
 
-print(led.pin_factory)
-
 serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial)
 
@@ -108,23 +106,33 @@ try:
     # Get Pi-Hole data
     r1 = requests.get(c.APIsummaryURL+"&auth="+c.APItoken)
 
+    # Pull out selected values into string variables
     v_ads_percent=str(round(r1.json()["ads_percentage_today"]))
     v_ads_blocked=str(r1.json()["ads_blocked_today"])
     v_status=str(r1.json()["status"])
     v_dns_queries=str(r1.json()["dns_queries_today"])
+    v_clients_ever_seen=str(r1.json()["clients_ever_seen"])
+    v_unique_clients=str(r1.json()["unique_clients"])
+
+    # UNCOMMENT TO PRINT FULL SUMMARY OBJECT
+    #print(json.dumps(r1.json(),indent=2))
 
     # UNCOMMENT TO USE TEST VALUES
     #v_ads_percent="100"
     #v_ads_blocked="999999"
     #v_status="disabled"
     #v_dns_queries="99999"
+    #v_clients_ever_seen="999"
+    #v_unique_clients="999"
 
     if v_status=="disabled":
       #Pi-Hole is disabled
       mode=5
+      led.value=0
     elif mode==5:
       #Pi-Hole is not disabled but was previously
       mode=0
+      led.value=1
 
     if mode==0:
       #
@@ -202,7 +210,6 @@ try:
       #
       # Pi-Hole is disabled
       #
-
       textLen=int(lrgfont.getlength("X"))
       offset=round((128-textLen)/2)
       with canvas(device) as draw:
