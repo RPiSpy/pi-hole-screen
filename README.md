@@ -35,27 +35,39 @@ Use CTRL-X, Y and ENTER to save and quit.
 ## Setup Python Virtual Environment
 To ensure we don't interfere with the standard Python environment we will create a virtual environment to
 run the script.
-```cd ~/pi-hole-screen
-python3 -m venv venv```
+```
+cd ~/pi-hole-screen
+python3 -m venv venv
+```
 then activate it:
-```python venv/bin/activate```
+```
+python venv/bin/activate
+```
 Then finally install the libraries required by the script:
-```python -m pip install requests
+```
+python -m pip install requests
 python -m pip install pillow
 python -m pip install luma.oled
-python -m pip install gpiozero```
+python -m pip install gpiozero
+```
 
 ## Test the Script
 In order to check the screen is working you can run the script:
-```python oled-screen.py```
+```
+python oled-screen.py
+```
 To quit the script use CTRL-C.
 
 ## Setup cron
 Add a reference to crontab so the script launches when Pi-Hole reboots:
-```crontab -e```
+```
+crontab -e
+```
 (If prompted select nano as the default editor)
 Add the following line:
-```@reboot /home/pi/pi-hole-screen/venv/python /home/pi/pi-hole-screen/oled-screen.py >> /home/pi/Scripts/oled-screen.log 2>&1```
+```
+@reboot /home/pi/pi-hole-screen/venv/python /home/pi/pi-hole-screen/oled-screen.py >> /home/pi/Scripts/oled-screen.log 2>&1
+```
 
 ## Reboot
 Using the Pi-Hole web interface reboot the system via the "Settings" page.
