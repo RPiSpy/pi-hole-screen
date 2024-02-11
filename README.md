@@ -7,8 +7,8 @@ This is a work in progress. The script is working but I need to update my blog p
 # Hardware Requirements
 - A Raspberry Pi running Pi-Hole
 - A 128x64 I2C OLED Screen
-- (optional)LED with current limiting resistor connected to GPIOxx
-- (optional)Momentary switch connected between GPIOxx and Ground
+- (optional)LED with current limiting resistor connected to GPIO24
+- (optional)Momentary switch connected between GPIO21 and Ground
 
 # Initial Setup
 ## Download project files
