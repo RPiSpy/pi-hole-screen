@@ -14,7 +14,7 @@
 # A momentary button and an LED with current limiting resistor is optional.
 #
 # Author : Matt Hawkins
-# Date   : 10/02/2024
+# Date   : 13/02/2024
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
 # Additional details here:
@@ -103,16 +103,27 @@ print("Enter main while loop. CTRL-C to quit.")
 try:
   while True:
 
-    # Get Pi-Hole data
-    r1 = requests.get(c.APIsummaryURL+"&auth="+c.APItoken)
+    try:
+      # Get Pi-Hole data
+      r1 = requests.get(c.APIsummaryURL+"&auth="+c.APItoken)
+      # Pull out selected values into string variables
+      v_ads_percent=str(round(r1.json()["ads_percentage_today"]))
+      v_ads_blocked=str(r1.json()["ads_blocked_today"])
+      v_status=str(r1.json()["status"])
+      v_dns_queries=str(r1.json()["dns_queries_today"])
+      v_clients_ever_seen=str(r1.json()["clients_ever_seen"])
+      v_unique_clients=str(r1.json()["unique_clients"])
+      led.value=1
 
-    # Pull out selected values into string variables
-    v_ads_percent=str(round(r1.json()["ads_percentage_today"]))
-    v_ads_blocked=str(r1.json()["ads_blocked_today"])
-    v_status=str(r1.json()["status"])
-    v_dns_queries=str(r1.json()["dns_queries_today"])
-    v_clients_ever_seen=str(r1.json()["clients_ever_seen"])
-    v_unique_clients=str(r1.json()["unique_clients"])
+    except:
+      # Data failed, Use defaults.
+      v_ads_percent="000"
+      v_ads_blocked="000000"
+      v_status="enabled"
+      v_dns_queries="99999"
+      v_clients_ever_seen="0"
+      v_unique_clients="0"
+      led.value=0
 
     # UNCOMMENT TO PRINT FULL SUMMARY OBJECT
     #print(json.dumps(r1.json(),indent=2))
