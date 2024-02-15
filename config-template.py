@@ -1,8 +1,11 @@
-# Your Pi-Hole API Token
-APItoken = "YOUR PIHOLE API TOKEN GOES HERE INSIDE THE QUOTES"
+# Script Path
+scriptPath = "/home/pi/pi-hole-screen"
 
-# Pi-Hole API End-points
-APIsummaryURL="http://####/admin/api.php?summaryRaw"
+# Place your Pi-Hole API Token within the double-quotes below
+APItoken = "YOUR PIHOLE API TOKEN"
+
+# Pi-Hole API End-point
+APIsummaryURL="http://localhost/admin/api.php?summaryRaw"
 
 # Define GPIO pins used by button and LED
 ButtonGPIO=21

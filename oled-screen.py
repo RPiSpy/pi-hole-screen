@@ -49,6 +49,7 @@
 #-----------------------------------------------------------
 
 # Standard libraries
+import os
 import time
 import json
 import requests
@@ -89,6 +90,9 @@ led.value=1
 
 serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial)
+
+# Change to script directory
+os.chdir(c.scriptPath)
 
 # Load fonts
 smlfont = ImageFont.truetype('fonts/big-shot.ttf',12)
