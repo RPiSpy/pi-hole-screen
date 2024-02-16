@@ -1,11 +1,11 @@
 # pi-hole-screen
-A repository for my 128x64 OLED screen add-on for Raspberry Pi based Pi-Hole systems.
+A repository for a 128x64 OLED screen add-on for Raspberry Pi based Pi-Hole systems.
 
 # Current Status
 This is a work in progress. The script is working but I need to update my blog post to explain how to implement it.
 
 # Requirements
-- A Raspberry Pi running Pi-Hole
+- A Raspberry Pi successfully running Pi-Hole
 - A 128x64 I2C OLED Screen
 - (optional)LED with current limiting resistor connected to GPIO24
 - (optional)Momentary switch connected between GPIO21 and Ground
@@ -14,7 +14,25 @@ Developed and tested on a Raspberry Pi 3B. Deployed to my Raspberry Pi B+ runnin
 
 Installation of additional libraries may be required on older versions of Raspberry Pi OS.
 
+# Configure I2C
+In order for the script to talk to the screen you need to enable and setup the I2C interface.
+This can be done by following the instructions in my
+[Using an I2C OLED Display Module with the Raspberry Pi](https://www.raspberrypi-spy.co.uk/2018/04/i2c-oled-display-module-with-raspberry-pi/) blog post.
+
+In particular the section titled "Enable I2C Interface".
+
+Once completed you should be able to run
+```
+i2cdetect -y 1
+```
+and see your screen address listed.
+
+# Change I2C Bus Speed (optional)
+For smoother scrolling you can increase the I2C bus speed as explained in my [Change Raspberry Pi I2C Bus Speed](https://www.raspberrypi-spy.co.uk/2018/02/change-raspberry-pi-i2c-bus-speed/) blog post. 
+
 # Initial Setup
+Once you screen is correctly connected and enabled you can proceed with the Python script setup.
+
 ## Download project files
 Use SSH to gain access to the Pi-Hole command line and ensure you are in the home directory using:
 ```
@@ -54,6 +72,10 @@ python -m pip install requests
 python -m pip install pillow
 python -m pip install luma.oled
 python -m pip install gpiozero
+```
+you may also need to install:
+```
+sudo apt install libopenjp2-7
 ```
 
 ## Test the Script

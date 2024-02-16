@@ -14,7 +14,7 @@
 # A momentary button and an LED with current limiting resistor is optional.
 #
 # Author : Matt Hawkins
-# Date   : 13/02/2024
+# Date   : 16/02/2024
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
 # Additional details here:
@@ -39,6 +39,8 @@
 # python -m pip install pillow
 # python -m pip install luma.oled
 # python -m pip install gpiozero
+# python -m pip install lgpio
+# sudo apt install libopenjp2-7
 #
 # Fonts:
 # ===================================
