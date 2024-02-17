@@ -57,9 +57,12 @@ nano config.py
 Use CTRL-X, Y and ENTER to save and quit.
 
 ## Setup Python 3 Virtual Environment
-To ensure we don't interfere with the standard Python environment we will create a virtual environment:
+To ensure we don't interfere with the standard Python environment we will create a virtual environment inside the project folder:
 ```
 cd ~/pi-hole-screen
+```
+Then to create a virtual environment called "venv" use:
+```
 python3 -m venv venv
 ```
 then activate it:
@@ -68,10 +71,7 @@ source venv/bin/activate
 ```
 Then finally install the libraries required by the script:
 ```
-python -m pip install requests
-python -m pip install pillow
-python -m pip install luma.oled
-python -m pip install gpiozero
+python -m pip install requests pillow luma.oled gpiozero
 ```
 you may also need to install:
 ```
