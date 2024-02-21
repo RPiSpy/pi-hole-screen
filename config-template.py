@@ -10,3 +10,8 @@ APIsummaryURL="http://localhost/admin/api.php?summaryRaw"
 # Define GPIO pins used by button and LED
 ButtonGPIO=21
 LEDGPIO=24
+
+# Screen Mode
+#  auto:   move onto the next mode after 30 seconds 
+#  button: use connected button to trigger next mode
+screenMode="auto"
