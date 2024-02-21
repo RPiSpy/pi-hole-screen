@@ -11,18 +11,18 @@
 #
 # Script to provide a status screen for a Pi-Hole system.
 # Requires a 128x64 I2C OLED screen.
-# A momentary button and an LED with current limiting resistor is optional.
+# A momentary button and an LED with current limiting resistor are optional.
 #
 # Author : Matt Hawkins
-# Date   : 16/02/2024
+# Date   : 21/02/2024
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
-# Additional details here:
+# Usage Details here:
 # https://www.raspberrypi-spy.co.uk/2019/10/pi-hole-oled-status-screen/
 #
 # Written for Python 3.
 #
-# Python Libraries:
+# Python Library Reference
 # ===================================
 # luma.oled library
 # https://github.com/rm-hull/luma.oled
@@ -69,8 +69,12 @@ from luma.oled.device import ssd1306
 from gpiozero import Button
 from gpiozero import PWMLED
 
-# Import API token and Pi-Hole URLs
-import config as c
+# Import API token and Pi-Hole URL from config.py
+try:
+  import config as c
+except ModuleNotFoundError:
+  print("Can't find config.py. Did you remember to rename config-template.py?")
+  quit()
 
 # Function to handle button presses
 def button_presssed():
@@ -82,6 +86,15 @@ def button_presssed():
   else:
     mode=1
 
+# Function to provide delay but
+# quits if mode changes
+def delayMe(currentMode,seconds):
+  global mode
+  counter=0
+  while currentMode==mode and counter<seconds:
+    counter=counter+1
+    time.sleep(1)
+
 # Configure button connected to GPIO21 (Pin 40) and Ground (Pin 39)
 button = Button(c.ButtonGPIO)
 button.when_pressed = button_presssed
@@ -90,6 +103,7 @@ button.when_pressed = button_presssed
 led = PWMLED(c.LEDGPIO)
 led.value=1
 
+# Create connection to OLED screen at address 0x3C
 serial = i2c(port=1, address=0x3C)
 device = ssd1306(serial)
 
@@ -101,7 +115,7 @@ smlfont = ImageFont.truetype('fonts/big-shot.ttf',12)
 medfont = ImageFont.truetype('fonts/Pixel12x10Mono-v1.1.0.ttf',16)
 lrgfont = ImageFont.truetype('fonts/VCR_OSD_MONO_1.001.ttf',42)
 
-# Default mode, show large percentage
+# Default mode, show large percentage number
 mode=0
 
 print("Enter main while loop. CTRL-C to quit.")
@@ -131,9 +145,6 @@ try:
       v_unique_clients="0"
       led.value=0
 
-    # UNCOMMENT TO PRINT FULL SUMMARY OBJECT
-    #print(json.dumps(r1.json(),indent=2))
-
     # UNCOMMENT TO USE TEST VALUES
     #v_ads_percent="100"
     #v_ads_blocked="999999"
@@ -144,26 +155,24 @@ try:
 
     if v_status=="disabled":
       #Pi-Hole is disabled
-      mode=5
+      mode=9
       led.value=0
-    elif mode==5:
+    elif mode==9:
       #Pi-Hole is not disabled but was previously
       mode=0
       led.value=1
 
+    #
+    # Large percentage with ads blocked today shown below
+    #
     if mode==0:
-      #
-      # Large percentage with ads blocked today shown below
-      #
-
       textLen=int(lrgfont.getlength(v_ads_percent+"%"))
       offset1=round((128-textLen)/2)
       textLen=int(medfont.getlength(v_ads_blocked))
       offset2=round((128-textLen)/2)
 
-      # Scroll from right-hand side (x 128 to 0 in steps of 16)
-      for x in range(128,-1,-8):
-
+      # Scroll from left-hand side (x -128 to 0 in steps of 8)
+      for x in range(-128,1,8):
         with canvas(device) as draw:
           # Draw a black filled box to clear image.
           draw.rectangle(device.bounding_box, outline="black", fill="black")
@@ -173,16 +182,11 @@ try:
 
         time.sleep(0.04)
 
-      time.sleep(10)
-
-      mode=1
-
+    #
+    # Get information about local system
+    #   IP Address, CPU usage, Memory usage and Disk usage
+    #
     if mode==1:
-      #
-      # Get information about local system
-      #   IP Address, CPU usage, Memory usage and Disk usage
-      #
-
       # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
       cmd = "hostname -I | cut -d\' \' -f1"
       IP = subprocess.check_output(cmd, shell = True )
@@ -194,16 +198,11 @@ try:
         draw.text((0, 32), "A: %s"   % v_ads_blocked, font=smlfont, fill=255)
         draw.text((0, 48), "Q: %s"   % v_dns_queries, font=smlfont, fill=255)
 
-      time.sleep(5)
-
-      mode=2
-
+    #
+    # Get information about local system
+    #   IP Address, CPU usage, Memory usage and Disk usage
+    #
     if mode==2:
-      #
-      # Get information about local system
-      #   IP Address, CPU usage, Memory usage and Disk usage
-      #
-
       # Shell scripts for system monitoring from here : https://unix.stackexchange.com/questions/119126/command-to-display-memory-usage-disk-usage-and-cpu-load
       cmd = "top -bn1 | grep load | awk '{printf \"C: %.2f\", $(NF-2)}'"
       CPU = subprocess.check_output(cmd, shell = True )
@@ -219,22 +218,23 @@ try:
         draw.text((0, 32), str(MemUsage.decode('UTF-8')), font=smlfont, fill=255)
         draw.text((0, 48), str(Disk.decode('UTF-8')),     font=smlfont, fill=255)
 
-      time.sleep(5)
-
-      mode=0
-
-    if mode==5:
-      #
-      # Pi-Hole is disabled
-      #
+    #
+    # Pi-Hole is disabled
+    #
+    if mode==9:
       textLen=int(lrgfont.getlength("X"))
       offset=round((128-textLen)/2)
       with canvas(device) as draw:
         draw.text((offset, 0), "X", font=lrgfont, fill=255)
-      time.sleep(10)
 
 
-    time.sleep(10)
+    # Wait for 30 seconds or until mode changes
+    delayMe(mode,30)
+
+    # if screenMode is auto then move to the next mode
+    if c.screenMode=="auto":
+      mode=mode+1
+      if mode>2: mode=0
 
     # continue while loop
 
