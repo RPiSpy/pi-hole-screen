@@ -14,7 +14,7 @@
 # A momentary button and an LED with current limiting resistor are optional.
 #
 # Author : Matt Hawkins
-# Date   : 21/02/2024
+# Date   : 28/02/2024
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
 # Usage Details here:
@@ -79,12 +79,8 @@ except ModuleNotFoundError:
 # Function to handle button presses
 def button_presssed():
   global mode
-  if mode==2:
-    mode=0
-  elif mode==1:
-    mode=2
-  else:
-    mode=1
+  mode=mode+1
+  if mode>2: mode=0
 
 # Function to provide delay but
 # quits if mode changes
