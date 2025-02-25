@@ -134,6 +134,10 @@ try:
   while True:
 
     try:
+      # Get current status
+      response=requests.get(c.APIblocking,json=session)
+      v_status=response.json()['blocking']
+
       # Use summary endpoint to get query stats
       response=requests.get(c.APIsummary,json=session)
       data=response.json()['queries']
@@ -162,13 +166,13 @@ try:
       led.value=0
 
     # UNCOMMENT TO USE TEST VALUES
-    v_total="999999"
-    v_percent_blocked="999"
-    v_blocked="999999"
-    v_unique_domains="999999"
-    v_forward="999999"
-    v_cached="999999"
-    v_frequency="999"
+    #v_total="999999"
+    #v_percent_blocked="999"
+    #v_blocked="999999"
+    #v_unique_domains="999999"
+    #v_forward="999999"
+    #v_cached="999999"
+    #v_frequency="999"
 
     if v_status=="disabled":
       #Pi-Hole is disabled
@@ -176,6 +180,7 @@ try:
       led.value=0
     elif mode==9:
       #Pi-Hole is not disabled but was previously
+      print("Re-enabled")
       mode=0
       led.value=1
 
@@ -183,9 +188,9 @@ try:
     # Large percentage with ads blocked today shown below
     #
     if mode==0:
-      textLen=int(lrgfont.getlength(v_ads_percent+"%"))
+      textLen=int(lrgfont.getlength(v_percent_blocked+"%"))
       offset1=round((128-textLen)/2)
-      textLen=int(medfont.getlength(v_ads_blocked))
+      textLen=int(medfont.getlength(v_blocked))
       offset2=round((128-textLen)/2)
 
       # Scroll from left-hand side (x -128 to 0 in steps of 8)
@@ -194,8 +199,8 @@ try:
           # Draw a black filled box to clear image.
           draw.rectangle(device.bounding_box, outline="black", fill="black")
           # Display large Pi-Hole ads blocked percentage
-          draw.text((x+offset1, 0), v_ads_percent+"%",  font=lrgfont, fill=255)
-          draw.text((x+offset2, 44), v_ads_blocked, font=medfont, fill=255)
+          draw.text((x+offset1, 0), v_percent_blocked+"%",  font=lrgfont, fill=255)
+          draw.text((x+offset2, 44), v_blocked, font=medfont, fill=255)
 
         time.sleep(0.04)
 
@@ -211,9 +216,9 @@ try:
       # Write Pi-Hole data
       with canvas(device) as draw:
         draw.text((0, 0),  str(IP.decode('UTF-8')),   font=smlfont, fill=255)
-        draw.text((0, 16), "B: %s%%" % v_ads_percent, font=smlfont, fill=255)
-        draw.text((0, 32), "A: %s"   % v_ads_blocked, font=smlfont, fill=255)
-        draw.text((0, 48), "Q: %s"   % v_dns_queries, font=smlfont, fill=255)
+        draw.text((0, 16), "B: %s%%" % v_percent_blocked, font=smlfont, fill=255)
+        draw.text((0, 32), "A: %s"   % v_blocked, font=smlfont, fill=255)
+        draw.text((0, 48), "Q: %s"   % v_total, font=smlfont, fill=255)
 
     #
     # Get information about local system
@@ -257,3 +262,4 @@ try:
 
 except KeyboardInterrupt:
   print("Aborted by user")
+
