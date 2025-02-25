@@ -14,7 +14,7 @@
 # A momentary button and an LED with current limiting resistor are optional.
 #
 # Author : Matt Hawkins
-# Date   : 28/02/2024
+# Date   : 25/02/2025
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
 # Usage Details here:
@@ -69,7 +69,7 @@ from luma.oled.device import ssd1306
 from gpiozero import Button
 from gpiozero import PWMLED
 
-# Import API token and Pi-Hole URL from config.py
+# Import API password and Pi-Hole URL from config.py
 try:
   import config as c
 except ModuleNotFoundError:
@@ -117,37 +117,58 @@ mode=0
 print("Enter main while loop. CTRL-C to quit.")
 
 try:
+
+  # Send password to get API session details
+  password={"password":c.APIpassword}
+  response= requests.post(c.APIauth,json=password)
+  if response.status_code==200:
+    print("New session created")
+    data=response.json()
+    SessionSID=data['session']['sid']
+    SessionCSRF=data['session']['csrf']
+    session={"sid":SessionSID,"csrf":SessionCSRF}
+  else:
+    print("There was a problem creating a session")
+    quit()
+
   while True:
 
     try:
-      # Get Pi-Hole data
-      r1 = requests.get(c.APIsummaryURL+"&auth="+c.APItoken)
+      # Use summary endpoint to get query stats
+      response=requests.get(c.APIsummary,json=session)
+      data=response.json()['queries']
+
       # Pull out selected values into string variables
-      v_ads_percent=str(round(r1.json()["ads_percentage_today"]))
-      v_ads_blocked=str(r1.json()["ads_blocked_today"])
-      v_status=str(r1.json()["status"])
-      v_dns_queries=str(r1.json()["dns_queries_today"])
-      v_clients_ever_seen=str(r1.json()["clients_ever_seen"])
-      v_unique_clients=str(r1.json()["unique_clients"])
+      v_total=str(data['total'])
+      v_percent_blocked=str(round(data['percent_blocked']))
+      v_blocked=str(data['blocked'])
+      v_unique_domains=str(data['unique_domains'])
+      v_forward=str(data['forwarded'])
+      v_cached=str(data['cached'])
+      v_frequency=str(round(data['frequency'],2))
+
       led.value=1
 
     except:
       # Data failed, Use defaults.
-      v_ads_percent="000"
-      v_ads_blocked="000000"
-      v_status="enabled"
-      v_dns_queries="99999"
-      v_clients_ever_seen="0"
-      v_unique_clients="0"
+      v_total="000000"
+      v_percent_blocked="000"
+      v_blocked="000000"
+      v_unique_domains="000000"
+      v_forward="000000"
+      v_cached="000000"
+      v_frequency="000"
+
       led.value=0
 
     # UNCOMMENT TO USE TEST VALUES
-    #v_ads_percent="100"
-    #v_ads_blocked="999999"
-    #v_status="disabled"
-    #v_dns_queries="99999"
-    #v_clients_ever_seen="999"
-    #v_unique_clients="999"
+    v_total="999999"
+    v_percent_blocked="999"
+    v_blocked="999999"
+    v_unique_domains="999999"
+    v_forward="999999"
+    v_cached="999999"
+    v_frequency="999"
 
     if v_status=="disabled":
       #Pi-Hole is disabled
