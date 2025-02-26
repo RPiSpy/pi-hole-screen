@@ -1,9 +1,6 @@
 # pi-hole-screen
 A repository for a 128x64 OLED screen add-on for Raspberry Pi based Pi-Hole systems.
 
-# Current Status
-This is a work in progress. The script is working but I need to update my blog post to explain how to implement it.
-
 # Requirements
 - A Raspberry Pi successfully running Pi-Hole
 - A 128x64 I2C OLED Screen
@@ -33,6 +30,8 @@ For smoother scrolling you can increase the I2C bus speed as explained in my [Ch
 # Initial Setup
 Once you screen is correctly connected and enabled you can proceed with the Python script setup.
 
+The setup process is detailed below but it also described in my [Pi-Hole OLED Status Screen](https://www.raspberrypi-spy.co.uk/2019/10/pi-hole-oled-status-screen/) blog post. 
+
 ## Download project files
 Use SSH to gain access to the Pi-Hole command line and ensure you are in the home directory using:
 ```
@@ -50,7 +49,7 @@ Rename the config-template.py file to config.py:
 ```
 mv config-template.py config.py
 ```
-Edit config.py and add your Pi-Hole API token:
+Edit config.py and add your Pi-Hole API password:
 ```
 nano config.py
 ```
@@ -71,11 +70,7 @@ source venv/bin/activate
 ```
 Then finally install the libraries required by the script:
 ```
-python -m pip install requests pillow luma.oled gpiozero
-```
-you may also need to install:
-```
-sudo apt install libopenjp2-7
+python -m pip install requests luma.oled gpiozero lgpio
 ```
 
 ## Test the Script
