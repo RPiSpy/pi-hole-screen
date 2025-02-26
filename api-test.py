@@ -25,6 +25,9 @@
 #
 # Written for Python 3.
 #
+# Required package installs:
+#   python -m pip install requests
+#
 # Local Pi-Hole API Documentation
 # ===================================
 # http://pi.hole/api/docs/

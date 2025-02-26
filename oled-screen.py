@@ -14,7 +14,7 @@
 # A momentary button and an LED with current limiting resistor are optional.
 #
 # Author : Matt Hawkins
-# Date   : 25/02/2025
+# Date   : 26/02/2025
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
 # Usage Details here:
@@ -36,10 +36,10 @@
 # Additional Python modules:
 # ===================================
 # python -m pip install requests
-# python -m pip install pillow
 # python -m pip install luma.oled
 # python -m pip install gpiozero
 # python -m pip install lgpio
+# python -m pip install pillow
 # sudo apt install libopenjp2-7
 #
 # Fonts:
@@ -92,12 +92,12 @@ def delayMe(currentMode,seconds):
     time.sleep(1)
 
 # Configure button connected to GPIO21 (Pin 40) and Ground (Pin 39)
-button = Button(c.ButtonGPIO)
-button.when_pressed = button_presssed
+##button = Button(c.ButtonGPIO)
+##button.when_pressed = button_presssed
 
 # Configure LED connected to GPIO24 (Pin 18) and Ground (Pin 20)
-led = PWMLED(c.LEDGPIO)
-led.value=1
+#led = PWMLED(c.LEDGPIO)
+##led.value=1
 
 # Create connection to OLED screen at address 0x3C
 serial = i2c(port=1, address=0x3C)
@@ -151,7 +151,7 @@ try:
       v_cached=str(data['cached'])
       v_frequency=str(round(data['frequency'],2))
 
-      led.value=1
+      ##led.value=1
 
     except:
       # Data failed, Use defaults.
@@ -163,7 +163,7 @@ try:
       v_cached="000000"
       v_frequency="000"
 
-      led.value=0
+      ##led.value=0
 
     # UNCOMMENT TO USE TEST VALUES
     #v_total="999999"
@@ -177,12 +177,12 @@ try:
     if v_status=="disabled":
       #Pi-Hole is disabled
       mode=9
-      led.value=0
+      ##led.value=0
     elif mode==9:
       #Pi-Hole is not disabled but was previously
       print("Re-enabled")
       mode=0
-      led.value=1
+      ##led.value=1
 
     #
     # Large percentage with ads blocked today shown below
@@ -262,4 +262,3 @@ try:
 
 except KeyboardInterrupt:
   print("Aborted by user")
-
