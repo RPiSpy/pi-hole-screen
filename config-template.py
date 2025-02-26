@@ -7,12 +7,13 @@ scriptPath = "/home/pi/pi-hole-screen"
 # Pi-Hole API End-points
 APIauth="http://pi.hole/api/auth"
 APIsummary="http://pi.hole/api/stats/summary"
+APIblocking="http://pi.hole/api/dns/blocking"
 
 # Define GPIO pins used by button and LED
 ButtonGPIO=21
 LEDGPIO=24
 
 # Screen Mode
-#  auto:   move onto the next mode after 30 seconds 
+#  auto:   move onto the next mode after 30 seconds
 #  button: use connected button to trigger next mode
 screenMode="auto"
