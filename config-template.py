@@ -5,9 +5,9 @@ APIpassword="YOUR PI-HOLE APP PASSWORD HERE"
 scriptPath = "/home/pi/pi-hole-screen"
 
 # Pi-Hole API End-points
-APIauth="http://pi.hole/api/auth"
-APIsummary="http://pi.hole/api/stats/summary"
-APIblocking="http://pi.hole/api/dns/blocking"
+APIauth="http://localhost/api/auth"
+APIsummary="http://localhost/api/stats/summary"
+APIblocking="http://localhost/api/dns/blocking"
 
 # Define GPIO pins used by button and LED
 ButtonGPIO=21
