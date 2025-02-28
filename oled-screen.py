@@ -14,7 +14,7 @@
 # A momentary button and an LED with current limiting resistor are optional.
 #
 # Author : Matt Hawkins
-# Date   : 26/02/2025
+# Date   : 28/02/2025
 # Source : https://github.com/RPiSpy/pi-hole-screen
 #
 # Usage Details here:
@@ -54,6 +54,7 @@ import time
 import json
 import requests
 import subprocess
+from datetime import datetime
 
 # Graphics libraries
 from PIL import ImageFont
@@ -74,20 +75,28 @@ except ModuleNotFoundError:
   print("Can't find config.py. Did you remember to rename config-template.py?")
   quit()
 
-# Function to handle button presses
 def button_presssed():
+  """Handle physical button press"""
   global mode
   mode=mode+1
   if mode>2: mode=0
 
-# Function to provide delay but
-# quits if mode changes
-def delayMe(currentMode,seconds):
+def delay_me(currentMode,seconds):
+  """Provide delay but exit if mode changes"""
   global mode
   counter=0
   while currentMode==mode and counter<seconds:
     counter=counter+1
     time.sleep(1)
+
+def is_between_times(start_time, end_time):
+    """Check if the current time is between start_time and end_time."""
+    now = datetime.now().time()
+
+    if end_time>start_time:
+      return start_time <= now <= end_time
+    else:
+      return now <= end_time or start_time <= now
 
 # Configure button connected to GPIO21 (Pin 40) and Ground (Pin 39)
 button = Button(c.ButtonGPIO)
@@ -108,6 +117,10 @@ os.chdir(c.scriptPath)
 smlfont = ImageFont.truetype('fonts/big-shot.ttf',12)
 medfont = ImageFont.truetype('fonts/Pixel12x10Mono-v1.1.0.ttf',16)
 lrgfont = ImageFont.truetype('fonts/VCR_OSD_MONO_1.001.ttf',42)
+
+# Convert input strings to time objects
+screenontime = datetime.strptime(c.SCREENON, "%H:%M").time()
+screenofftime = datetime.strptime(c.SCREENOFF, "%H:%M").time()
 
 # Default mode, show large percentage number
 mode=0
@@ -247,14 +260,24 @@ try:
       with canvas(device) as draw:
         draw.text((offset, 0), "X", font=lrgfont, fill=255)
 
-
     # Wait for 30 seconds or until mode changes
-    delayMe(mode,30)
+    delay_me(mode,30)
 
     # if screenMode is auto then move to the next mode
     if c.screenMode=="auto":
       mode=mode+1
       if mode>2: mode=0
+
+    # Check if the screen should be on or off at this time
+    if not is_between_times(screenontime,screenofftime):
+      #Screen Off
+      device.hide()
+      print("Screen OFF - Waiting for screen on")
+      while not is_between_times(screenontime,screenofftime):
+        time.sleep(60)
+      #Screen On
+      device.show()
+      print("Screen ON")
 
     # continue while loop
 

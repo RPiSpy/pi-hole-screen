@@ -1,6 +1,10 @@
 # Place your Pi-Hole API Token within the double-quotes below
 APIpassword="YOUR PI-HOLE APP PASSWORD HERE"
 
+# Active hours
+SCREENON="06:00"
+SCREENOFF="23:55"
+
 # Script Path
 scriptPath = "/home/pi/pi-hole-screen"
 
